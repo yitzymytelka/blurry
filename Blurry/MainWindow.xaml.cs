@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Media;
+using System.Windows.Interop;
 using Application = System.Windows.Application;
 
 namespace Blurry
@@ -8,31 +8,53 @@ namespace Blurry
     public partial class MainWindow : Window
     {
         private NotifyIcon? _trayIcon;
-
-        [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
-        [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT { public int Left, Top, Right, Bottom; }
+        private IntPtr _hook;
+        private WinEventHook.WinEventDelegate _callback;
 
         public MainWindow()
         {
             InitializeComponent();
-
             InitializeTrayIcon();
 
-            this.Topmost = true;
+            Loaded += OnLoaded;
+
             this.ShowInTaskbar = false;
 
-            // Check active window from every frame
-            CompositionTarget.Rendering += OnFrameUpdate;
-
-            // exit with ESC
+            // ESC -> çıkış
             this.PreviewKeyDown += (s, e) =>
             {
                 if (e.Key == System.Windows.Input.Key.Escape)
                     Application.Current.Shutdown();
             };
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            var hwnd = new WindowInteropHelper(this).Handle;
+
+            // Click-through ve ALT+TAB görünmez
+            int exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+            exStyle |= WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOOLWINDOW;
+            SetWindowLong(hwnd, GWL_EXSTYLE, exStyle);
+
+            ApplyFullScreenBlur();
+
+            // SetWinEventHook ile aktif pencere değişimini yakala
+            SetupFocusHook();
+        }
+
+        private void ApplyFullScreenBlur()
+        {
+            Left = 0;
+            Top = 0;
+            Width = SystemParameters.VirtualScreenWidth;
+            Height = SystemParameters.VirtualScreenHeight;
+
+            // Görev çubuğu yüksekliği
+            var taskbarHeight = Screen.PrimaryScreen.Bounds.Height - Screen.PrimaryScreen.WorkingArea.Height;
+            RootGrid.Margin = new Thickness(0, 0, 0, taskbarHeight);
+
+            BlurFx.Radius = SettingsWindow.BlurValue;
         }
 
         private void InitializeTrayIcon()
@@ -63,36 +85,61 @@ namespace Blurry
             });
         }
 
-        private void OnFrameUpdate(object? sender, EventArgs e)
-        {
-            IntPtr active = GetForegroundWindow();
-            if (active == IntPtr.Zero) return;
-
-            GetWindowRect(active, out RECT rect);
-
-            double screenWidth = SystemParameters.PrimaryScreenWidth;
-            double screenHeight = SystemParameters.PrimaryScreenHeight;
-
-            // Adjust blur intensity from settings
-            BlurFx.Radius = SettingsWindow.BlurValue;
-
-          
-            var fullRect = new RectangleGeometry(new Rect(0, 0, screenWidth, screenHeight));
-            var hole = new RectangleGeometry(new Rect(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top));
-            var combined = new CombinedGeometry(GeometryCombineMode.Exclude, fullRect, hole);
-
-            RootGrid.Clip = combined;
-        }
-
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-
             if (_trayIcon != null)
             {
                 _trayIcon.Visible = false;
                 _trayIcon.Dispose();
             }
+
+            if (_hook != IntPtr.Zero)
+            {
+                WinEventHook.UnhookWinEvent(_hook);
+            }
         }
+
+        #region Win32 / SetWinEventHook
+
+        private void SetupFocusHook()
+        {
+            _callback = new WinEventHook.WinEventDelegate(OnForegroundWindowChanged);
+            _hook = WinEventHook.SetWinEventHook(
+                WinEventHook.EVENT_SYSTEM_FOREGROUND,
+                WinEventHook.EVENT_SYSTEM_FOREGROUND,
+                IntPtr.Zero,
+                _callback,
+                0, 0,
+                WinEventHook.WINEVENT_OUTOFCONTEXT | WinEventHook.WINEVENT_SKIPOWNPROCESS
+            );
+        }
+
+        private void OnForegroundWindowChanged(IntPtr hWinEventHook, uint eventType,
+            IntPtr hwndActive, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+        {
+            var hwndBlur = new WindowInteropHelper(this).Handle;
+
+            // Önce blur penceresini en alta gönder
+            SetWindowPos(hwndBlur, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+
+            // Sonra aktif pencerenin altına çek
+            SetWindowPos(hwndBlur, hwndActive, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
+
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_LAYERED = 0x00080000;
+        private const int WS_EX_TRANSPARENT = 0x00000020;
+        private const int WS_EX_TOOLWINDOW = 0x00000080;
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOACTIVATE = 0x0010;
+        private static readonly IntPtr HWND_BOTTOM = new(1);
+
+        [DllImport("user32.dll")] private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        [DllImport("user32.dll")] private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        #endregion
     }
 }
