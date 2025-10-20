@@ -3,19 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Blurry"
         WindowStyle="None"
+        ResizeMode="NoResize"
         AllowsTransparency="True"
         Background="Transparent"
         Topmost="True"
-        ShowInTaskbar="False"
-        ResizeMode="NoResize"
-        WindowState="Maximized">
-
-    <Grid x:Name="RootGrid">
-        <!-- Blur Layer -->
-        <Border x:Name="BlurLayer" Background="#AA000000">
-            <Border.Effect>
-                <BlurEffect x:Name="BlurFx" Radius="25"/>
-            </Border.Effect>
-        </Border>
+        ShowInTaskbar="False">
+    <Grid x:Name="RootGrid" Background="#80000000">
+        <Grid.Effect>
+            <BlurEffect x:Name="BlurFx" Radius="25"/>
+        </Grid.Effect>
     </Grid>
 </Window>
