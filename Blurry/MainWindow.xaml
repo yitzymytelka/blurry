@@ -1,0 +1,21 @@
+﻿<Window x:Class="Blurry.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Blurry"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        WindowState="Maximized">
+
+    <Grid x:Name="RootGrid">
+        <!-- Blur Layer -->
+        <Border x:Name="BlurLayer" Background="#AA000000">
+            <Border.Effect>
+                <BlurEffect x:Name="BlurFx" Radius="25"/>
+            </Border.Effect>
+        </Border>
+    </Grid>
+</Window>
