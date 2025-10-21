@@ -5,7 +5,7 @@ using Blurry.Hooks;
 
 namespace Blurry
 {
-    public partial class MainWindow : Window
+    public partial class BlurWindow : Window
     {
         private IntPtr _hook;
         private WinEventHook.WinEventDelegate _callback;
@@ -13,9 +13,9 @@ namespace Blurry
 
 
         // Default constructor — for primary screen and tray
-        public MainWindow() : this(Screen.PrimaryScreen) { }
+        public BlurWindow() : this(Screen.PrimaryScreen) { }
 
-        public MainWindow(Screen targetScreen)
+        public BlurWindow(Screen targetScreen)
         {
             InitializeComponent();
 

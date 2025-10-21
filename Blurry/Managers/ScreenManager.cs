@@ -3,7 +3,7 @@
     public static class ScreenManager
     {
 
-        private static readonly Dictionary<string, MainWindow> _activeWindows = [];
+        private static readonly Dictionary<string, BlurWindow> _activeWindows = [];
 
 
 
@@ -17,14 +17,14 @@
 
         public static void ToggleMonitor(Screen screen)
         {
-            if (_activeWindows.TryGetValue(screen.DeviceName, out MainWindow? value))
+            if (_activeWindows.TryGetValue(screen.DeviceName, out BlurWindow? value))
             {
                 value.Close();
                 _activeWindows.Remove(screen.DeviceName);
             }
             else
             {
-                var win = new MainWindow(screen);
+                var win = new BlurWindow(screen);
                 win.Show();
                 _activeWindows[screen.DeviceName] = win;
             }
