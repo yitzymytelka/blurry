@@ -4,6 +4,7 @@
         Title="Blurry"
         WindowStyle="None"
         ResizeMode="NoResize"
+        WindowStartupLocation="Manual"
         AllowsTransparency="True"
         Background="Transparent"
         Topmost="True"
