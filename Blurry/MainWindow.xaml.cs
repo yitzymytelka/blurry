@@ -11,50 +11,27 @@ namespace Blurry
         private IntPtr _hook;
         private WinEventHook.WinEventDelegate _callback;
 
-        public MainWindow()
+
+
+        // Default constructor — for primary screen and tray
+        public MainWindow() : this(Screen.PrimaryScreen, true) { }
+
+        public MainWindow(Screen targetScreen, bool showTray)
         {
             InitializeComponent();
-            InitializeTrayIcon();
+
+            Left = targetScreen.Bounds.Left;
+            Top = targetScreen.Bounds.Top;
+            Width = targetScreen.Bounds.Width;
+            Height = targetScreen.Bounds.Height;
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Tag = targetScreen;
 
             Loaded += OnLoaded;
-
             this.ShowInTaskbar = false;
 
-            // ESC -> çıkış
-            this.PreviewKeyDown += (s, e) =>
-            {
-                if (e.Key == System.Windows.Input.Key.Escape)
-                    Application.Current.Shutdown();
-            };
-        }
-
-        private void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            var hwnd = new WindowInteropHelper(this).Handle;
-
-            // Click-through ve ALT+TAB görünmez
-            int exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-            exStyle |= WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOOLWINDOW;
-            SetWindowLong(hwnd, GWL_EXSTYLE, exStyle);
-
-            ApplyFullScreenBlur();
-
-            // SetWinEventHook ile aktif pencere değişimini yakala
-            SetupFocusHook();
-        }
-
-        private void ApplyFullScreenBlur()
-        {
-            Left = 0;
-            Top = 0;
-            Width = SystemParameters.VirtualScreenWidth;
-            Height = SystemParameters.VirtualScreenHeight;
-
-            // Görev çubuğu yüksekliği
-            var taskbarHeight = Screen.PrimaryScreen.Bounds.Height - Screen.PrimaryScreen.WorkingArea.Height;
-            RootGrid.Margin = new Thickness(0, 0, 0, taskbarHeight);
-
-            BlurFx.Radius = SettingsWindow.BlurValue;
+            if (showTray)
+                InitializeTrayIcon();
         }
 
         private void InitializeTrayIcon()
@@ -74,6 +51,36 @@ namespace Blurry
             menu.Items.Add("Exit", null, (s, e) => Application.Current.Shutdown());
             _trayIcon.ContextMenuStrip = menu;
         }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            var hwnd = new WindowInteropHelper(this).Handle;
+
+            // Click-through and ALT+TAB
+            int exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+            exStyle |= WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOOLWINDOW;
+            SetWindowLong(hwnd, GWL_EXSTYLE, exStyle);
+
+            if (Tag is Screen screen)
+                ApplyFullScreenBlur(screen);
+
+            SetupFocusHook();
+        }
+
+        private void ApplyFullScreenBlur(Screen screen)
+        {
+            Left = screen.Bounds.Left;
+            Top = screen.Bounds.Top;
+            Width = screen.Bounds.Width;
+            Height = screen.Bounds.Height;
+
+            // taskbar height by screen
+            var taskbarHeight = screen.Bounds.Height - screen.WorkingArea.Height;
+            RootGrid.Margin = new Thickness(0, 0, 0, taskbarHeight);
+
+            BlurFx.Radius = SettingsWindow.BlurValue;
+        }
+
 
         private void OpenSettingsWindow()
         {
@@ -120,10 +127,10 @@ namespace Blurry
         {
             var hwndBlur = new WindowInteropHelper(this).Handle;
 
-            // Önce blur penceresini en alta gönder
+            // First send the blur window to the bottom
             SetWindowPos(hwndBlur, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
-            // Sonra aktif pencerenin altına çek
+            // Then drag it below the active window
             SetWindowPos(hwndBlur, hwndActive, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         }
 
