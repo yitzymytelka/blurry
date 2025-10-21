@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using Blurry.Managers;
 using Application = System.Windows.Application;
 
 namespace Blurry
@@ -6,6 +7,7 @@ namespace Blurry
     public partial class App : Application
     {
         private NotifyIcon? _trayIcon;
+        private SettingsWindow? _settingsWindow;
 
 
 
@@ -37,15 +39,29 @@ namespace Blurry
             menu.Items.Add("Exit", null, (s, e) => Current.Shutdown());
             _trayIcon.ContextMenuStrip = menu;
 
+            _trayIcon.MouseClick += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    ScreenManager.TogglePrimaryMonitor();
+                }
+            };
         }
 
         private void OpenSettings()
         {
             Current.Dispatcher.Invoke(() =>
             {
-                var settings = new SettingsWindow();
-                settings.Show();
-                settings.Activate();
+                if (_settingsWindow == null)
+                {
+                    _settingsWindow = new SettingsWindow();
+                    _settingsWindow.Closed += (s, e) => _settingsWindow = null;
+                    _settingsWindow.Show();
+                }
+                else
+                {
+                    _settingsWindow.Activate();
+                }
             });
         }
 
