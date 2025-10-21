@@ -11,11 +11,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="Resources\mainIcon.ico" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Include="Resources\mainIcon.ico">
+		<Content Include="Resources\trayIcon.ico">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>

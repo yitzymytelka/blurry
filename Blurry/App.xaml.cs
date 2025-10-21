@@ -25,7 +25,7 @@ namespace Blurry
         private void InitializeTrayIcon()
         {
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
-            string iconPath = System.IO.Path.Combine(exeDir, "Resources", "mainIcon.ico");
+            string iconPath = System.IO.Path.Combine(exeDir, "Resources", "trayIcon.ico");
 
             _trayIcon = new NotifyIcon
             {
