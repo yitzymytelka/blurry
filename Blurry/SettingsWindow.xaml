@@ -6,14 +6,14 @@
         WindowStartupLocation="CenterScreen">
     <StackPanel Margin="20">
 
-        <!-- Blur ayarları -->
+        <!-- Blur settings -->
         <TextBlock Text="Blur" Margin="0,0,0,5"/>
         <Slider x:Name="BlurSlider" Minimum="0" Maximum="100" Value="25"/>
         <TextBlock x:Name="BlurValueText" Text="25" HorizontalAlignment="Right"/>
 
         <Separator Margin="0,10,0,10"/>
 
-        <!-- Monitör listesi -->
+        <!-- Monitors -->
         <TextBlock Text="Monitors:" FontWeight="Bold" Margin="0,0,0,5"/>
 
         <ItemsControl x:Name="MonitorItems">

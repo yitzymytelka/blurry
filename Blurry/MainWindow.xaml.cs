@@ -1,22 +1,20 @@
 ﻿using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
-using Application = System.Windows.Application;
 
 namespace Blurry
 {
     public partial class MainWindow : Window
     {
-        private NotifyIcon? _trayIcon;
         private IntPtr _hook;
         private WinEventHook.WinEventDelegate _callback;
 
 
 
         // Default constructor — for primary screen and tray
-        public MainWindow() : this(Screen.PrimaryScreen, true) { }
+        public MainWindow() : this(Screen.PrimaryScreen) { }
 
-        public MainWindow(Screen targetScreen, bool showTray)
+        public MainWindow(Screen targetScreen)
         {
             InitializeComponent();
 
@@ -29,28 +27,8 @@ namespace Blurry
 
             Loaded += OnLoaded;
             this.ShowInTaskbar = false;
-
-            if (showTray)
-                InitializeTrayIcon();
         }
 
-        private void InitializeTrayIcon()
-        {
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
-            string iconPath = System.IO.Path.Combine(exeDir, "Resources", "mainIcon.ico");
-
-            _trayIcon = new NotifyIcon
-            {
-                Icon = new System.Drawing.Icon(iconPath),
-                Visible = true,
-                Text = "Blurry"
-            };
-
-            var menu = new ContextMenuStrip();
-            menu.Items.Add("Blur Settings", null, (s, e) => OpenSettingsWindow());
-            menu.Items.Add("Exit", null, (s, e) => Application.Current.Shutdown());
-            _trayIcon.ContextMenuStrip = menu;
-        }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
@@ -82,25 +60,11 @@ namespace Blurry
         }
 
 
-        private void OpenSettingsWindow()
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var settings = new SettingsWindow();
-                settings.Show();
-                settings.Activate();
-            });
-        }
 
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            if (_trayIcon != null)
-            {
-                _trayIcon.Visible = false;
-                _trayIcon.Dispose();
-            }
-
+            
             if (_hook != IntPtr.Zero)
             {
                 WinEventHook.UnhookWinEvent(_hook);
