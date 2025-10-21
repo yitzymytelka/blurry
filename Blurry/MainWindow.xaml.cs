@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using Blurry.Hooks;
 
 namespace Blurry
 {
