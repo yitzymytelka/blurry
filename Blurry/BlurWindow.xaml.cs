@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Interop;
 using Blurry.Hooks;
+using Blurry.Managers;
 
 namespace Blurry
 {
@@ -48,10 +49,13 @@ namespace Blurry
 
         private void ApplyFullScreenBlur(Screen screen)
         {
-            Left = screen.Bounds.Left;
-            Top = screen.Bounds.Top;
-            Width = screen.Bounds.Width;
-            Height = screen.Bounds.Height;
+            var rect = DpiManager.ToWpfRect(screen);
+
+            Left = rect.Left;
+            Top = rect.Top;
+            Width = rect.Width;
+            Height = rect.Height;
+
 
             // taskbar height by screen
             var taskbarHeight = screen.Bounds.Height - screen.WorkingArea.Height;
