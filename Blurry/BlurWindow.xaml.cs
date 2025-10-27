@@ -61,7 +61,7 @@ namespace Blurry
             var taskbarHeight = screen.Bounds.Height - screen.WorkingArea.Height;
             RootGrid.Margin = new Thickness(0, 0, 0, taskbarHeight);
 
-            BlurFx.Radius = SettingsWindow.BlurValue;
+            BlurEffectManager.EnableBlur(this);
         }
 
 

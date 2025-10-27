@@ -5,21 +5,9 @@ namespace Blurry
 {
     public partial class SettingsWindow : Window
     {
-        public static double BlurValue { get; private set; } = 25;
-
         public SettingsWindow()
         {
             InitializeComponent();
-
-            // Blur slider
-            BlurSlider.Value = BlurValue;
-            BlurValueText.Text = ((int)BlurValue).ToString();
-            BlurSlider.ValueChanged += (s, e) =>
-            {
-                BlurValue = BlurSlider.Value;
-                BlurValueText.Text = ((int)BlurSlider.Value).ToString();
-            };
-
             LoadMonitors();
         }
 
@@ -27,7 +15,7 @@ namespace Blurry
         {
             var allScreens = Screen.AllScreens;
 
-            var items = allScreens.Select(screen => new
+            var items = allScreens.OrderByDescending(x => x.Primary).Select(screen => new
             {
                 Name = $"{(screen.Primary ? "[Primary] " : "")}{screen.DeviceName} ({screen.Bounds.Width}x{screen.Bounds.Height})",
                 ButtonText = ScreenManager.MonitorIsActive(screen.DeviceName) ? "Disable" : "Enable",

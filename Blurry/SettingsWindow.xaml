@@ -5,14 +5,6 @@
         Width="380" Height="400"
         WindowStartupLocation="CenterScreen">
     <StackPanel Margin="20">
-
-        <!-- Blur settings -->
-        <TextBlock Text="Blur" Margin="0,0,0,5"/>
-        <Slider x:Name="BlurSlider" Minimum="0" Maximum="100" Value="25"/>
-        <TextBlock x:Name="BlurValueText" Text="25" HorizontalAlignment="Right"/>
-
-        <Separator Margin="0,10,0,10"/>
-
         <!-- Monitors -->
         <TextBlock Text="Monitors:" FontWeight="Bold" Margin="0,0,0,5"/>
 
