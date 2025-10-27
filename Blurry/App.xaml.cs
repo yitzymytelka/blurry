@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Runtime.InteropServices;
+using System.Windows;
 using Blurry.Managers;
 using Application = System.Windows.Application;
 
@@ -11,8 +12,29 @@ namespace Blurry
 
 
 
+        [DllImport("Shcore.dll")]
+        private static extern int SetProcessDpiAwareness(ProcessDpiAwareness awareness);
+
+        private enum ProcessDpiAwareness
+        {
+            Process_DPI_Unaware = 0,
+            Process_System_DPI_Aware = 1,
+            Process_Per_Monitor_DPI_Aware = 2
+        }
+
+
         protected override void OnStartup(StartupEventArgs e)
         {
+            try
+            {
+                // Enable per-monitor DPI awareness
+                SetProcessDpiAwareness(ProcessDpiAwareness.Process_Per_Monitor_DPI_Aware);
+            }
+            catch
+            {
+                // On systems before Windows 8.1, an error is given, but that's not a problem.
+            }
+
             base.OnStartup(e);
 
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
