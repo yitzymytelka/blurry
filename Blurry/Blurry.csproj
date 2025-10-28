@@ -9,9 +9,13 @@
 		<UseWindowsForms>true</UseWindowsForms>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<ApplicationIcon>Resources\appicon.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Content Include="Resources\appicon.ico">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 		<Content Include="Resources\trayIcon.ico">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>

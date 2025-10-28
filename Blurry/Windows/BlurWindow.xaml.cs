@@ -13,7 +13,7 @@ namespace Blurry
 
 
 
-        // Default constructor — for primary screen and tray
+        // Default constructor — for primary screen
         public BlurWindow() : this(Screen.PrimaryScreen) { }
 
         public BlurWindow(Screen targetScreen)
