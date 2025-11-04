@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Input;
 using Blurry.Managers;
 using Application = System.Windows.Application;
 
@@ -37,12 +38,32 @@ namespace Blurry
 
             base.OnStartup(e);
 
+            InitializeHotKeys();
+
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
             InitializeTrayIcon();
         }
 
+        private void InitializeHotKeys()
+        {
+            HotkeyManager.Initialize();
 
+            // Alt + X → blur toggle primary monitor
+            HotkeyManager.RegisterHotkey(
+                HotkeyManager.Modifiers.Alt,
+                (uint)KeyInterop.VirtualKeyFromKey(System.Windows.Input.Key.X),
+                ScreenManager.TogglePrimaryMonitor
+            );
+
+
+            // CTRL + Alt + X → blur toggle all monitors
+            HotkeyManager.RegisterHotkey(
+                HotkeyManager.Modifiers.Ctrl | HotkeyManager.Modifiers.Alt,
+                (uint)KeyInterop.VirtualKeyFromKey(System.Windows.Input.Key.X),
+                ScreenManager.ToggleAllMonitors
+            );
+        }
 
         private void InitializeTrayIcon()
         {
@@ -58,6 +79,7 @@ namespace Blurry
 
             var menu = new ContextMenuStrip();
             menu.Items.Add("Open Settings", null, (s, e) => OpenSettings());
+            menu.Items.Add("Disable All Monitors", null, (s, e) => ScreenManager.DisableAllMonitors());
             menu.Items.Add("Exit", null, (s, e) => Current.Shutdown());
             _trayIcon.ContextMenuStrip = menu;
 
@@ -94,6 +116,9 @@ namespace Blurry
                 _trayIcon.Visible = false;
                 _trayIcon.Dispose();
             }
+
+            HotkeyManager.Dispose();
+
             base.OnExit(e);
         }
     }
