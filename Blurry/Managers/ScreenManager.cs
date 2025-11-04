@@ -7,13 +7,34 @@
 
 
 
-        public static bool MonitorIsActive(string DeviceName) => 
+        public static bool MonitorIsActive(string DeviceName) =>
             _activeWindows.ContainsKey(DeviceName);
 
 
 
+        public static void ToggleAllMonitors()
+        {
+            var allScreens = Screen.AllScreens;
+            foreach (var screen in allScreens)
+            {
+                if(!_activeWindows.ContainsKey(screen.DeviceName))
+                    CreateAndShowBlurWindow(screen);
+            }
+        }
+
+        public static void DisableAllMonitors()
+        {
+            foreach (var item in _activeWindows)
+            {
+                item.Value.Close();
+            }
+
+           _activeWindows.Clear();
+        }
+
+
         public static void TogglePrimaryMonitor() => ToggleMonitor(Screen.PrimaryScreen);
-        
+
 
         public static void ToggleMonitor(Screen screen)
         {
@@ -24,10 +45,15 @@
             }
             else
             {
-                var win = new BlurWindow(screen);
-                win.Show();
-                _activeWindows[screen.DeviceName] = win;
+                CreateAndShowBlurWindow(screen);
             }
+        }
+
+        private static void CreateAndShowBlurWindow(Screen screen)
+        {
+            var win = new BlurWindow(screen);
+            win.Show();
+            _activeWindows[screen.DeviceName] = win;
         }
 
     }
