@@ -9,6 +9,7 @@ namespace Blurry
         {
             InitializeComponent();
             LoadMonitors();
+            Topmost = true;
         }
 
         private void LoadMonitors()
