@@ -1,0 +1,38 @@
+name: Build & Release Blurry
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore NuGet packages
+        run: dotnet restore Blurry/Blurry.csproj
+
+      - name: Publish Self-Contained Folder
+        run: dotnet publish Blurry/Blurry.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=false -o publish/sc
+
+      - name: Zip Self-Contained Folder
+        run: powershell Compress-Archive -Path publish/sc/* -DestinationPath publish/Blurry_sc.zip
+
+      - name: Upload ZIP to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: publish/Blurry_sc.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
