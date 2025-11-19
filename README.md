@@ -24,12 +24,11 @@ It is designed to improve privacy, focus, and presentation during meetings or sc
 
 ---
 
-## Screenshots (Slider-Style Preview)
+## Screenshots
 
-<div style="display: flex; overflow-x: auto; gap: 10px; padding: 10px;">
-  <img src="github/screenshot-1.png" width="1200" height="500" />
-  <img src="github/settings.png" width="600" height="500" />
-</div>
+<img src="github/screenshot-1.png" width="900" height="500" />
+<img src="github/settings.png" width="500" height="500" />
+
 
 ---
 
